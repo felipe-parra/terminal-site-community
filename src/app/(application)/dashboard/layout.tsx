@@ -1,13 +1,28 @@
 'use client';
 
+import { Navbar } from '@/components/custom-ui/Navbar';
 import { useSession } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
-export default function ApplicationLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data } = useSession();
-  if (!data) {
-    return <div>Loading...</div>;
-  } else if (!data.user) {
-    return <div>Unauthorized</div>;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!data?.session) {
+      router.push('/login');
+    }
+  }, [data?.session, router]);
+
+  if (!data?.session) {
+    return null;
   }
-  return <>{children}</>;
+
+  return (
+    <>
+      <Navbar links={[{ label: 'Dashboard', href: '/dashboard' }]} buttons={[{ label: 'Sign Out', href: '/auth/sign-out' }]} />
+      <div className="p-4">{children}</div>
+    </>
+  );
 }
